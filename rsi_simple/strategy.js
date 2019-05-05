@@ -52,7 +52,7 @@ module.exports = {
           s.signal = 'buy'
         }
 
-        if (s.period.rsi > s.options.overbought_rsi) {
+       else if (s.period.rsi > s.options.overbought_rsi) {
           s.signal = 'sell'
         }
 
