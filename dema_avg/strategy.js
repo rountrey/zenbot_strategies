@@ -87,11 +87,9 @@ module.exports = {
         }
           s.trend = 'down'
           s.dema_low = ((s.period.dema_histogram + s.lookback[0].dema_histogram + s.lookback[1].dema_histogram) / 3)
-//          s.dema_low = Math.min(s.period.dema_histogram, s.lookback[0].dema_histogram, s.lookback[1].dema_histogram, s.lookback[2].dema_histogram)
           s.noise_down = ((s.dema_high - s.dema_low) / s.dema_high * 1)
           s.period.noise = ((s.dema_high - s.dema_low) / s.dema_high * -1)
           s.noise_min = ((s.period.noise + s.lookback[0].noise + s.lookback[1].noise) / 3)
-//          s.noise_min = Math.min(s.period.noise, s.lookback[0].noise, s.lookback[1].noise)
             if (s.period.rsi > s.options.rsi_buy_safety || s.options.noise_level_pct != 0 && s.noise_down < s.options.noise_level_pct) {
               s.signal = null
             } else if (s.trend === 'down' && s.period.noise >= s.noise_min && s.period.dema_histogram > (s.dema_low + s.options.dema_recover)) {
@@ -110,11 +108,9 @@ module.exports = {
         }
           s.trend = 'up'
           s.dema_high = ((s.period.dema_histogram + s.lookback[0].dema_histogram + s.lookback[1].dema_histogram) / 3)
-//          s.dema_high = Math.max(s.period.dema_histogram, s.lookback[0].dema_histogram, s.lookback[1].dema_histogram, s.lookback[2].dema_histogram)
           s.noise_up = ((s.dema_low - s.dema_high) / s.dema_low * 1)
           s.period.noise = ((s.dema_high - s.dema_low) / s.dema_low * -1)
           s.noise_max = ((s.period.noise + s.lookback[0].noise + s.lookback[1].noise) / 3)
-//          s.noise_max = Math.max(s.period.noise, s.lookback[0].noise, s.lookback[1].noise)
             if (s.period.rsi < s.options.rsi_sell_safety || s.options.noise_level_pct != 0 && s.noise_up < s.options.noise_level_pct) {
               s.signal = null
             } else if (s.trend === 'up' && s.period.noise <= s.noise_max && s.period.dema_histogram < (s.dema_high - s.options.dema_drop)) {//
