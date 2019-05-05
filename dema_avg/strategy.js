@@ -62,8 +62,6 @@ module.exports = {
     if (s.period.ema_short && s.period.ema_long) {
       s.period.dema_histogram = ((s.period.ema_short - s.period.ema_long) / s.period.ema_short * 100) 
     }
-//    if (s.period.dema_histogram < 0) {
-
   },
 
   onPeriod: function (s, cb) {
