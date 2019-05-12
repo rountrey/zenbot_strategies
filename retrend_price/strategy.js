@@ -118,24 +118,24 @@ module.exports = {
 
   onReport: function(s) {
     var cols = []
-    if (typeof s.period.trend_ema === 'number') {
-      var color = 'grey'
-      if (s.trend === 'falling') {
-        cols.push(('falling').blue)
-      }
-      else if (s.trend === 'bottom') {
-        cols.push(('bottom ').green)
-      }
-      else if (s.trend === 'rising') {
-        cols.push(('rising ').yellow)
-      }
-      else if (s.trend === 'top') {
-        cols.push(('top    ').red)
-      }
-      else {
-        cols.push(('       ').black)
-      }
-    }
+//    if (typeof s.period.trend_ema === 'number') {
+//      var color = 'grey'
+//      if (s.trend === 'falling') {
+//        cols.push(('falling').blue)
+//      }
+//      else if (s.trend === 'bottom') {
+//        cols.push(('bottom ').green)
+//      }
+//      else if (s.trend === 'rising') {
+//        cols.push(('rising ').yellow)
+//      }
+//      else if (s.trend === 'top') {
+//        cols.push(('top    ').red)
+//      }
+//      else {
+//        cols.push(('       ').black)
+//      }
+//    }
 
     if (typeof s.period.trend_ema === 'number') {
       var color = 'grey'
@@ -147,6 +147,15 @@ module.exports = {
         cols.push(z(8, n(s.rsi_avg).format('0.00'), ' ')[color])
         cols.push(z(8, n(s.period.trend_ema).format('0.0000'), ' ')[color])
     } 
+    if (typeof s.period.close === 'number') {
+      var color = 'grey'
+      if (s.trend === 'falling' || s.trend === 'bottom') {
+        cols.push(z(8, n(s.price_min).format('0.00000'), '    ').green)
+      }
+      else if (s.trend === 'rising' || s.trend === 'top') {
+        cols.push(z(8, n(s.price_max).format('0.00000'), '    ').red)
+      }
+    } 
 
     if (typeof s.period.close === 'number') {
       var color = 'grey'
@@ -156,9 +165,7 @@ module.exports = {
       else if (s.signal === 'sell' || s.action == 'sold') {
         color = 'red'
       }
-        cols.push(z(8, n(s.price_min).format('0.00'), ' ').green)
-        cols.push(z(8, n(s.period.close).format('0.00'), ' ')[color])
-        cols.push(z(8, n(s.price_max).format('0.00'), ' ').red)
+        cols.push(z(8, n(s.period.close).format('0.00000'), '    ')[color])
     } 
     return cols
   },
