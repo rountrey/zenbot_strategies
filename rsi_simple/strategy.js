@@ -21,6 +21,7 @@
      0xdF3Be8Ff3a34E5d7A9159EE928B5C6dF6594e859
 */
 
+// IGNORE THIS, STILL WORKING ON IT!!!
 
 var z = require('zero-fill')
   , n = require('numbro')
