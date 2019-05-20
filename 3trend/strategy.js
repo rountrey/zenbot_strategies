@@ -49,7 +49,7 @@ module.exports = {
 // trix options
     this.option('timeperiod', 'timeperiod for TRIX', Number, 6)
 // rsi options
-    this.option('rsi_safety', 'at what point to trade', Number, 3) //set to -49 to remove this check
+    this.option('rsi_safety', 'will not sell if rsi is above/below 50 +/- this number, set to -49 to cancel', Number, 3)
     this.option('rsi_periods', 'number of RSI periods', 14)
     this.option('oversold_rsi', 'buy when RSI reaches or drops below this value', Number, 9)
     this.option('overbought_rsi', 'sell when RSI reaches or goes above this value', Number, 99)
@@ -136,14 +136,14 @@ module.exports = {
       }
 // selling
       if (s.trend !== 'rising' || s.trend !== 'sold') {
-        if (s.period.trix > s.trix_avg && s.period.trend_ema > s.ema_avg && s.period.macd_histogram > 0) { // && s.period.rsi > s.rsi_avg) {
+        if (s.period.trix > s.trix_avg && s.period.trend_ema > s.ema_avg && s.period.macd_histogram > 0) { // && s.last_trade_worth > 0) {
           s.trend = 'rising'
           s.acted_on_trend = false
           s.price_max = Math.max(s.lookback[0].close, s.lookback[1].close, s.lookback[2].close)
         }
       }
       if (s.trend === 'rising') {
-        if (s.period.close <= s.price_max && s.period.rsi > (50 + s.options.rsi_safety)) { // && s.period.close < s.period.close_avg) { 
+        if (s.period.close <= s.price_max && s.period.rsi > (50 + s.options.rsi_safety)) { // && s.last_trade_worth > 0) { 
           if (s.prev_action !== 'sold' && s.options.multi_trade === 'off') {
             s.signal = 'sell'
           } else if (s.options.multi_trade !== 'off') {
@@ -199,24 +199,34 @@ module.exports = {
         cols.push(z(8, n(s.trix_avg).format('0.0000'), ' ')[color])
      }
 
-    if (typeof s.period.trend_ema === 'number') {
+    if (typeof s.period.rsi === 'number') {
       var color = 'grey'
-      if (s.trend === 'falling') {
-        cols.push((' falling').blue)
-      }
-      else if (s.trend === 'bought') {
-        cols.push((' bought ').green)
-      }
-      else if (s.trend === 'rising') {
-        cols.push((' rising ').yellow)
-      }
-      else if (s.trend === 'sold') {
-        cols.push((' sold   ').red)
-      }
-      else {
-        cols.push(('        ').black)
-      }
-    }
+      if (s.period.rsi > (50 + s.options.rsi_safety) && s.trend === 'rising') {
+        color = 'green'
+      } else if (s.period.rsi < (50 + s.options.rsi_safety) && s.trend === 'falling') {
+        color = 'red'
+      } 
+        cols.push(z(8, n(s.period.rsi).format('0.00'), ' ')[color])
+     }
+
+//    if (typeof s.period.trend_ema === 'number') {
+//      var color = 'grey'
+//      if (s.trend === 'falling') {
+//        cols.push((' falling').blue)
+//      }
+//      else if (s.trend === 'bought') {
+//        cols.push((' bought ').green)
+//      }
+//      else if (s.trend === 'rising') {
+//        cols.push((' rising ').yellow)
+//      }
+//      else if (s.trend === 'sold') {
+//        cols.push((' sold   ').red)
+//      }
+//      else {
+//        cols.push(('        ').black)
+//      }
+//     }
 
     return cols
   },
