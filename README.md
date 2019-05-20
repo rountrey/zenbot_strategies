@@ -19,7 +19,7 @@ Licence: Creative Common (Zero CC0)
  
 Contact: rountrey on reddit
 
-Donations are welcome! If you find use of these, let me know or drop some coin my way.
+## Donations are welcome! If you find use of these, let me know or drop some coin my way.
  
 #### BTC:
 ```
