@@ -40,6 +40,7 @@ module.exports = {
     this.option('period_length', 'period length, same as --period', String, '15m')
     this.option('min_periods', 'min. number of history periods', Number, 52)
     this.option('multi_trade', 'if off, then buy/sell signals only happen after crossing 0', String, 'off')
+    this.option('pct_change', 'do not trade if last trade is below this, neg. numbers OK', Number, '-10')
 // ema options
     this.option('trend_ema', 'number of periods for trend EMA', Number, 6)
 // macd options
@@ -77,6 +78,13 @@ module.exports = {
 
 
   onPeriod: function (s, cb) {
+
+    if (typeof s.last_trade_worth !== 'number') {
+      last_trade_pct = 0
+    } else {
+      last_trade_pct = (s.last_trade_worth * 100)
+    }
+
 //rsi trades
     if (typeof s.period.rsi === 'number') {
       s.rsi_avg = ((s.lookback[0].rsi + s.lookback[1].rsi + s.lookback[2].rsi) / 3)  
@@ -112,14 +120,14 @@ module.exports = {
 //buying
     if (typeof s.period.trend_ema === 'number') {
       if (s.trend !== 'falling' || s.trend !== 'bought') {
-        if (s.period.trix < s.trix_avg && s.period.trend_ema < s.ema_avg && s.period.macd_histogram < 0) { // && s.period.rsi < s.rsi_avg) {
+        if (s.period.trix < s.trix_avg && s.period.trend_ema < s.ema_avg && s.period.macd_histogram < 0) { // && last_trade_pct >= 0) {
           s.trend = 'falling'
           s.acted_on_trend = false
           s.price_min = Math.min(s.lookback[0].close, s.lookback[1].close, s.lookback[2].close)
         }
       }
       if (s.trend === 'falling') {
-        if (s.period.close >= s.price_min && s.period.rsi < (50 - s.options.rsi_safety)) { // && s.period.close > s.period.close_avg) {
+        if (s.period.close >= s.price_min && s.period.rsi < (50 - s.options.rsi_safety) && last_trade_pct >= s.options.pct_change) {
           if (s.prev_action !== 'bought' && s.options.multi_trade === 'off') {
             s.signal = 'buy'
           } else if (s.options.multi_trade !== 'off') {
@@ -129,21 +137,21 @@ module.exports = {
               s.acted_on_trend = true
               s.prev_action = 'bought'
             }
-            if (s.prev_action == 'bought') {
+            if (s.prev_action == 'bought' && s.trend == 'falling') {
               s.trend = 'bought'
             }
         }
       }
 // selling
       if (s.trend !== 'rising' || s.trend !== 'sold') {
-        if (s.period.trix > s.trix_avg && s.period.trend_ema > s.ema_avg && s.period.macd_histogram > 0) { // && s.last_trade_worth > 0) {
+        if (s.period.trix > s.trix_avg && s.period.trend_ema > s.ema_avg && s.period.macd_histogram > 0) { // && last_trade_pct >= 0) {
           s.trend = 'rising'
           s.acted_on_trend = false
           s.price_max = Math.max(s.lookback[0].close, s.lookback[1].close, s.lookback[2].close)
         }
       }
       if (s.trend === 'rising') {
-        if (s.period.close <= s.price_max && s.period.rsi > (50 + s.options.rsi_safety)) { // && s.last_trade_worth > 0) { 
+        if (s.period.close <= s.price_max && s.period.rsi > (50 + s.options.rsi_safety) && last_trade_pct >= s.options.pct_change) { 
           if (s.prev_action !== 'sold' && s.options.multi_trade === 'off') {
             s.signal = 'sell'
           } else if (s.options.multi_trade !== 'off') {
@@ -153,7 +161,7 @@ module.exports = {
               s.acted_on_trend = true
               s.prev_action = 'sold'
             }
-            if (s.prev_action == 'sold') {
+            if (s.prev_action == 'sold' && s.trend == 'rising') {
               s.trend = 'sold'
             }
         } 
@@ -206,7 +214,7 @@ module.exports = {
       } else if (s.period.rsi < (50 + s.options.rsi_safety) && s.trend === 'falling') {
         color = 'red'
       } 
-        cols.push(z(8, n(s.period.rsi).format('0.00'), ' ')[color])
+        cols.push(z(8, n(s.period.rsi).format('0.0'), ' ')[color])
      }
 
 //    if (typeof s.period.trend_ema === 'number') {
