@@ -38,7 +38,7 @@ module.exports = {
 // common
     this.option('period', 'period length, same as --period_length', String, '15m')
     this.option('period_length', 'period length, same as --period', String, '15m')
-    this.option('min_periods', 'min. number of history periods', Number, 52)
+    this.option('min_periods', 'min. number of history periods', Number, 128)
     this.option('multi_trade', 'if off, then buy/sell signals only happen after crossing 0', String, 'off')
     this.option('pct_change', 'do not trade if last trade is below this, neg. numbers OK', Number, '-10')
 // ema options
@@ -85,6 +85,12 @@ module.exports = {
       last_trade_pct = (s.last_trade_worth * 100)
     }
 
+    if (s.prev_action !== 'bought' && s.prev_action !== 'sold') {
+      s.pct_change = 0
+    } else {
+      s.pct_change = s.options.pct_change
+    }
+
 //rsi trades
     if (typeof s.period.rsi === 'number') {
       s.rsi_avg = ((s.lookback[0].rsi + s.lookback[1].rsi + s.lookback[2].rsi) / 3)  
@@ -127,7 +133,7 @@ module.exports = {
         }
       }
       if (s.trend === 'falling') {
-        if (s.period.close >= s.price_min && s.period.rsi < (50 - s.options.rsi_safety) && last_trade_pct >= s.options.pct_change) {
+        if (s.period.close >= s.price_min && s.period.rsi < (50 - s.options.rsi_safety) && last_trade_pct >= s.pct_change) {
           if (s.prev_action !== 'bought' && s.options.multi_trade === 'off') {
             s.signal = 'buy'
           } else if (s.options.multi_trade !== 'off') {
@@ -151,7 +157,7 @@ module.exports = {
         }
       }
       if (s.trend === 'rising') {
-        if (s.period.close <= s.price_max && s.period.rsi > (50 + s.options.rsi_safety) && last_trade_pct >= s.options.pct_change) { 
+        if (s.period.close <= s.price_max && s.period.rsi > (50 + s.options.rsi_safety) && last_trade_pct >= s.pct_change) { 
           if (s.prev_action !== 'sold' && s.options.multi_trade === 'off') {
             s.signal = 'sell'
           } else if (s.options.multi_trade !== 'off') {
